@@ -205,3 +205,4 @@ http_conn::HTTP_CODE http_conn::parse_request_line(char *text)
     m_check_state = CHECK_STATE_HEADER;
     return NO_REQUEST;
 }
+
