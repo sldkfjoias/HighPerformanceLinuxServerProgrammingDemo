@@ -15,18 +15,21 @@
 #include <time.h>
 #include <stdlib.h>
 
+enum
+{
+    BUFFER_SIZE = 1023
+};
 
-
-enum {BUFFER_SIZE = 1023};
-
-int setnonblocking(int fd){
+int setnonblocking(int fd)
+{
     int old_option = fcntl(fd, F_GETFL);
     int new_option = old_option | O_NONBLOCK;
     fcntl(fd, F_SETFL, new_option);
     return old_option;
-} 
+}
 
-int unblock_connect(const char* ip, int port, int time){
+int unblock_connect(const char *ip, int port, int time)
+{
     int ret = 0;
     struct sockaddr_in address;
     bzero(&address, sizeof(address));
@@ -36,12 +39,15 @@ int unblock_connect(const char* ip, int port, int time){
 
     int sockfd = socket(PF_INET, SOCK_STREAM, 0);
     int fdopt = setnonblocking(sockfd);
-    ret = connect(sockfd, (struct sockaddr*)&address, sizeof(address));
-    if(ret == 0){
+    ret = connect(sockfd, (struct sockaddr *)&address, sizeof(address));
+    if (ret == 0)
+    {
         printf("connect with server immediately\n");
         fcntl(sockfd, F_SETFL, fdopt);
         return sockfd;
-    } else if(errno != EINPROGRESS){
+    }
+    else if (errno != EINPROGRESS)
+    {
         printf("unblock conncet not support!\n");
         return -1;
     }
@@ -57,12 +63,14 @@ int unblock_connect(const char* ip, int port, int time){
     timeout.tv_usec = 0;
 
     ret = select(sockfd + 1, NULL, &writefds, NULL, &timeout);
-    if(ret <= 0){
+    if (ret <= 0)
+    {
         printf("connection time out\n");
         close(sockfd);
         return -1;
     }
-    if(!FD_ISSET(sockfd, &writefds)){
+    if (!FD_ISSET(sockfd, &writefds))
+    {
         printf("no events on sockfd found\n");
         close(sockfd);
         return -1;
@@ -71,7 +79,8 @@ int unblock_connect(const char* ip, int port, int time){
     int error = 0;
     socklen_t length = sizeof(error);
 
-    if(getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &length)< 0){
+    if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &length) < 0)
+    {
         printf("get socket option failed\n");
         close(sockfd);
         return -1;
@@ -88,12 +97,14 @@ int unblock_connect(const char* ip, int port, int time){
     return sockfd;
 }
 
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[])
+{
     assert(argc > 2);
-    const char* ip = argv[1];
+    const char *ip = argv[1];
     int port = atoi(argv[2]);
     int sockfd = unblock_connect(ip, port, 10);
-    if(sockfd < 0) return 1;
+    if (sockfd < 0)
+        return 1;
     close(sockfd);
     return 0;
 }

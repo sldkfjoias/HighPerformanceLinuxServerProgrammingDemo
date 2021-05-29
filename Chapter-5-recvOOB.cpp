@@ -6,16 +6,20 @@
 #include <errno.h>
 #include <string.h>
 
-enum { BUF_SIZE = 1024 };
-
-int main(int argc, char* argv[])
+enum
 {
-    if(argc <= 2){
+    BUF_SIZE = 1024
+};
+
+int main(int argc, char *argv[])
+{
+    if (argc <= 2)
+    {
         printf("usage: %s ip_address port_number\n", basename(argv[0]));
         return 1;
     }
 
-    const char* ip = argv[1];
+    const char *ip = argv[1];
     int port = atoi(argv[2]);
 
     struct sockaddr_in address;
@@ -28,7 +32,7 @@ int main(int argc, char* argv[])
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     assert(sock >= 0);
 
-    int ret = bind(sock, (struct sockaddr*) &address, sizeof(address));
+    int ret = bind(sock, (struct sockaddr *)&address, sizeof(address));
     assert(ret != -1);
 
     ret = listen(sock, 5);
@@ -36,21 +40,22 @@ int main(int argc, char* argv[])
 
     struct sockaddr_in client;
     socklen_t client_addrlen = sizeof(client);
-    int connfd = accept(sock, (struct sockaddr*) &client, &client_addrlen);
-    if(connfd < 0){
+    int connfd = accept(sock, (struct sockaddr *)&client, &client_addrlen);
+    if (connfd < 0)
+    {
         printf("[ERR] errno is: %d\n", errno);
-    } else {
+    }
+    else
+    {
         char buffer[BUF_SIZE];
 
         memset(buffer, '\0', BUF_SIZE);
         ret = recv(connfd, buffer, BUF_SIZE - 1, 0);
         printf("[SUCCESS] Got %d bytes of normal data '%s'\n", ret, buffer);
 
-
         memset(buffer, '\0', BUF_SIZE);
         ret = recv(connfd, buffer, BUF_SIZE - 1, MSG_OOB);
         printf("[SUCCESS] Got %d bytes of oob data '%s'\n", ret, buffer);
-
 
         memset(buffer, '\0', BUF_SIZE);
         ret = recv(connfd, buffer, BUF_SIZE - 1, 0);
