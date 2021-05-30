@@ -20,7 +20,7 @@ public:
 
     ~sem()
     {
-        sem_destory(&m_sem);
+        sem_destroy(&m_sem);
     }
 
     bool P()
@@ -52,7 +52,7 @@ public:
 
     ~locker()
     {
-        pthread_mutex_destory(&m_mutex);
+        pthread_mutex_destroy(&m_mutex);
     }
 
     bool lock()
@@ -84,15 +84,15 @@ public:
         {
             //release the resource that has been alloc rightaway
             printf("[ERROR] condition init failed, release the mutex rightaway\n");
-            pthread_mutex_destory(&m_mutex);
-            throw std::exception;
+            pthread_mutex_destroy(&m_mutex);
+            throw std::exception();
         }
     }
 
     ~cond()
     {
-        pthread_mutex_destory(&m_mutex);
-        pthread_mutex_destory(&m_cond);
+        pthread_mutex_destroy(&m_mutex);
+        pthread_cond_destroy(&m_cond);
     }
 
     bool wait()

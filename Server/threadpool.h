@@ -1,5 +1,5 @@
 #ifndef THREADPOOL_H
-#defind THREADPOOL_H
+#define THREADPOOL_H
 
 #include <list>
 #include <cstdio>
@@ -51,7 +51,7 @@ threadpool<T>::threadpool(int thread_number, int max_requests) : m_thread_number
     if ((thread_number <= 0) || max_requests <= 0)
     {
         printf("[ERROR] thread number is %d, max requests is %d, while both need bigger than 0\n", thread_number, max_requests);
-        throw std::exception;
+        throw std::exception();
     }
     m_threads = new pthread_t[m_thread_number];
     if (!m_threads)
@@ -100,8 +100,8 @@ bool threadpool<T>::append(T *request)
     }
 
     m_workqueue.push_back(request);
-    m_queuelocker.unlock;
-    m_queuestat.post(); // there is request to process
+    m_queuelocker.unlock();
+    m_queuestat.V(); // there is request to process
     return true;
 }
 
@@ -118,7 +118,7 @@ void threadpool<T>::run()
 {
     while (!m_stop)
     {
-        m_queuestat.wait();
+        m_queuestat.P();
         m_queuelocker.lock();
         if (m_workqueue.empty())
         {
